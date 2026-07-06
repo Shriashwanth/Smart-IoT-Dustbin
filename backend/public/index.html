@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart IoT Dustbin - Waste Management Command Center</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-icon">
+          <i class="fa-solid fa-trash-can-lightning"></i>
+        </div>
+        <div class="brand-text">
+          <h1>Smart Dustbin IoT</h1>
+          <p>Waste Management Dashboard & Hardware Simulator</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <div id="connection-badge" class="badge badge-success">
+          <span class="pulsating-dot"></span>
+          <span id="connection-text">Live Server-Sync</span>
+        </div>
+        <div class="system-time">
+          <i class="fa-regular fa-clock"></i>
+          <span id="live-clock">00:00:00</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT GRID -->
+    <main class="dashboard-grid">
+      
+      <!-- LEFT SECTION: LIVE MONITORING DASHBOARD -->
+      <section class="dashboard-pane shadow-card">
+        <div class="pane-header">
+          <h2><i class="fa-solid fa-chart-line header-icon"></i> Live Bin Telemetry</h2>
+          <div class="header-actions">
+            <button id="empty-bin-btn" class="btn btn-primary" title="Simulate physical collection truck emptying the bin">
+              <i class="fa-solid fa-dumpster"></i> Empty Bin
+            </button>
+          </div>
+        </div>
+
+        <div class="telemetry-summary">
+          <!-- Bin Display Card -->
+          <div class="bin-card">
+            <div class="bin-card-top">
+              <div>
+                <h3 id="bin-name">Central Park Main Gate</h3>
+                <span id="bin-id-label">ID: bin_001</span>
+              </div>
+              <span id="bin-status-badge" class="status-tag tag-normal">Normal</span>
+            </div>
+
+            <div class="bin-visualizer-container">
+              <!-- Visual Fluid level tank representation -->
+              <div class="dustbin-cylinder">
+                <div class="dustbin-lid" id="visual-lid"></div>
+                <div class="dustbin-body">
+                  <div class="liquid-wave" id="waste-fluid-wave"></div>
+                  <span id="waste-percentage-text">0%</span>
+                </div>
+              </div>
+              
+              <!-- Metric Details -->
+              <div class="bin-metrics">
+                <div class="metric-row">
+                  <div class="metric-label">
+                    <i class="fa-solid fa-battery-three-quarters"></i> Battery Health
+                  </div>
+                  <div class="metric-value-container">
+                    <span id="battery-volts">4.20V</span>
+                    <div class="battery-bar-container">
+                      <div id="battery-bar-fill" class="battery-bar-fill" style="width: 100%"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="metric-row">
+                  <div class="metric-label">
+                    <i class="fa-solid fa-door-open"></i> Lid Status
+                  </div>
+                  <span id="lid-state-text" class="metric-val text-closed">Closed</span>
+                </div>
+
+                <div class="metric-row">
+                  <div class="metric-label">
+                    <i class="fa-solid fa-rotate"></i> Lid Open Counter
+                  </div>
+                  <span id="lid-open-count" class="metric-val">0</span>
+                </div>
+
+                <div class="metric-row">
+                  <div class="metric-label">
+                    <i class="fa-solid fa-calendar-check"></i> Last Collection
+                  </div>
+                  <span id="last-emptied-time" class="metric-val">-- : --</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Statistics -->
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-title">Collection Frequency</span>
+              <span class="stat-number" id="stats-frequency">Daily</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-title">Solar Energy</span>
+              <span class="stat-number text-success" id="stats-solar"><i class="fa-solid fa-sun text-yellow"></i> Active</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Historical fill charts -->
+        <div class="chart-section">
+          <h3>Historical Fill Levels</h3>
+          <div class="chart-wrapper">
+            <canvas id="fillHistoryChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT SECTION: SYSTEM SIMULATOR -->
+      <section class="simulator-pane shadow-card">
+        <div class="pane-header">
+          <h2><i class="fa-solid fa-microchip header-icon"></i> IoT Hardware Simulator</h2>
+          <div class="badge badge-warning">Simulating GSM & MCU</div>
+        </div>
+
+        <div class="simulator-controls">
+          <!-- Sensor Knobs & Sliders -->
+          <div class="sim-card">
+            <h4><i class="fa-solid fa-sliders"></i> Sensor & Battery Inputs</h4>
+            
+            <!-- Waste Fill Slider -->
+            <div class="control-group">
+              <div class="control-label">
+                <span>Ultrasonic Proximity (Fill Level)</span>
+                <span class="bubble-val" id="sim-fill-val">0%</span>
+              </div>
+              <input type="range" id="sim-fill-slider" min="0" max="100" value="0" class="slider">
+              <span class="help-text">Simulates the HC-SR04 measuring distance inside the bin.</span>
+            </div>
+
+            <!-- Battery Slider -->
+            <div class="control-group">
+              <div class="control-label">
+                <span>Li-ion Battery Voltage</span>
+                <span class="bubble-val" id="sim-voltage-val">4.20 V</span>
+              </div>
+              <input type="range" id="sim-voltage-slider" min="3.0" max="4.5" step="0.05" value="4.20" class="slider">
+              <span class="help-text">Simulates voltage reading from the solar-charged battery.</span>
+            </div>
+
+            <!-- Proximity Switch -->
+            <div class="control-group flex-row">
+              <div>
+                <span class="row-label">IR Motion / Hand Proximity Sensor</span>
+                <p class="help-text">Triggers the touch-free automatic lid opening mechanism.</p>
+              </div>
+              <button id="sim-ir-btn" class="btn btn-outline">
+                <i class="fa-solid fa-hand"></i> Wave Hand
+              </button>
+            </div>
+          </div>
+
+          <!-- GSM Network Simulation -->
+          <div class="sim-card">
+            <h4><i class="fa-solid fa-signal"></i> GSM & GPRS Network Status</h4>
+            <div class="flex-row gap-10">
+              <div class="network-select">
+                <label for="network-status">Network Link:</label>
+                <select id="network-status" class="select-dropdown">
+                  <option value="registered">Registered (Home Network)</option>
+                  <option value="roaming">Registered (Roaming)</option>
+                  <option value="unregistered">Searching / No Signal</option>
+                </select>
+              </div>
+              <div class="network-select">
+                <label for="gprs-status">GPRS Context:</label>
+                <select id="gprs-status" class="select-dropdown">
+                  <option value="attached">Attached (Internet ON)</option>
+                  <option value="detached">Detached (Internet OFF)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Virtual Cellular Display -->
+          <div class="simulator-display-grid">
+            
+            <!-- Virtual Phone Alerts -->
+            <div class="virtual-device phone-device">
+              <div class="device-notch"></div>
+              <div class="phone-screen">
+                <div class="phone-header">
+                  <span>9:41</span>
+                  <div class="phone-icons">
+                    <i class="fa-solid fa-signal"></i>
+                    <i class="fa-solid fa-wifi"></i>
+                    <i class="fa-solid fa-battery-full"></i>
+                  </div>
+                </div>
+                <div class="phone-messages-app">
+                  <div class="app-title">Messages - Waste Center</div>
+                  <div id="virtual-sms-thread" class="sms-thread">
+                    <div class="sms-bubble system-info">SMS alert messages will appear here.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Virtual Arduino Serial Console -->
+            <div class="virtual-device serial-device">
+              <div class="serial-header">
+                <span><i class="fa-solid fa-terminal"></i> Arduino COM3 Serial Monitor (9600 baud)</span>
+                <button id="clear-serial-btn" class="btn-icon" title="Clear console"><i class="fa-solid fa-trash"></i></button>
+              </div>
+              <div id="serial-output" class="serial-output">
+                [SYSTEM] Serial Monitor Ready.
+                [SYSTEM] Awaiting sensor telemetry ticks...
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
